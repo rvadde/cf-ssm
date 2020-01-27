@@ -33,7 +33,6 @@ Resources:
           import os
 
           ssm = boto3.client('ssm')
-          region = os.environ['AWS_REGION']
 
           def handler(event, context):
             key = event["key"]
@@ -64,6 +63,62 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Timeout: 30
 
+  SSMAutomationDocument:
+    Type: AWS::SSM::Document
+    Properties:
+      DocumentType: "Automation"
+      Name: "ListRoot"
+      Content: |
+        {
+          "schemaVersion": "0.3",
+          "description": "Returns content of root directory of instances with the given tag key and value",
+          "parameters": {
+            "key": {
+              "type": "String",
+              "description": "Tag key"
+            },
+            "value": {
+              "type": "String",
+              "description": "Tag value"
+            }
+          },
+          "mainSteps": [
+            {
+              "name": "InvokeLambda",
+              "action": "aws:invokeLambdaFunction",
+              "onFailure": "Abort",
+              "inputs": {
+                "FunctionName": "GetInstanceIds",
+                "Payload": "{ \"key\": \"{{ key }}\", \"value\": \"{{ value }}\" }"
+              }
+            },
+            {
+              "name": "ListRoot",
+              "action": "aws:runCommand",
+              "inputs": {
+                "DocumentName": "AWS-RunShellScript",
+                "Targets": [
+                  {
+                    "Key": "tag:{{ key }}",
+                    "Values": [
+                      "{{ value }}"
+                    ]
+                  }
+                ],
+                "Parameters": {
+                  "workingDirectory": "/",
+                  "commands": ["ls -al"]
+                }
+              }
+            }
+          ],
+          "outputs": [
+            "ListRoot.CommandId", "ListRoot.Output"
+          ]
+        }
+
 Outputs:
   Lambda:
     Value: !Ref Lambda
+  SSMDocument:
+    Value: !Ref SSMAutomationDocument

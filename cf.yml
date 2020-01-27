@@ -35,7 +35,7 @@ Resources:
             print("foo")
 
       Description: "Executes 'ls -al' on instances tagged with key/value"
-      Runtime: "python3.8"
+      Runtime: "python3.7"
       FunctionName: "GetInstanceIds"
       Handler: "index.handler"
       MemorySize: 128

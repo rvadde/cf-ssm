@@ -20,6 +20,25 @@
         "FunctionName": "GetInstanceIds",
         "Payload": "{ \"key\": \"{{ key }}\", \"value\": \"{{ value }}\" }"
       }
+    },
+    {
+      "name": "ListRoot",
+      "action": "aws:runCommand",
+      "inputs": {
+        "DocumentName": "AWS-RunShellScript",
+        "Targets": [
+          {
+            "Key": "tag:{{ key }}",
+            "Values": [
+              "{{ value }}"
+            ]
+          }
+        ],
+        "Parameters": {
+          "workingDirectory": "/",
+          "commands": ["ls -al"]
+        }
+      }
     }
   ]
 }

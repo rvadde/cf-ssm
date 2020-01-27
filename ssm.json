@@ -1,6 +1,6 @@
 {
   "schemaVersion": "0.3",
-  "description": "Execute ls",
+  "description": "Returns content of root directory of instances with the given tag key and value",
   "parameters": {
     "key": {
       "type": "String",
@@ -40,5 +40,8 @@
         }
       }
     }
+  ],
+  "outputs": [
+    "ListRoot.CommandId", "ListRoot.Output"
   ]
 }

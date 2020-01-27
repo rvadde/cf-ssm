@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "0.3",
+  "description": "Execute ls",
+  "parameters": {
+    "key": {
+      "type": "String",
+      "description": "Tag key"
+    },
+    "value": {
+      "type": "String",
+      "description": "Tag value"
+    }
+  },
+  "mainSteps": [
+    {
+      "name": "InvokeLambda",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Abort",
+      "inputs": {
+        "FunctionName": "GetInstanceIds",
+        "Payload": "{ \"key\": \"{{ key }}\", \"value\": \"{{ value }}\" }"
+      }
+    }
+  ]
+}

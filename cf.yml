@@ -18,6 +18,9 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Effect: "Allow"
+                Action: "ssm:DescribeInstanceInformation"
+                Resource: "*"
+              - Effect: "Allow"
                 Action: "logs:*"
                 Resource: "arn:aws:logs:*:*:*"
 
@@ -30,9 +33,28 @@ Resources:
           import os
 
           ssm = boto3.client('ssm')
+          region = os.environ['AWS_REGION']
 
           def handler(event, context):
-            print("foo")
+            key = event["key"]
+            value = event["value"]
+
+            # get instances
+            iil = ssm.describe_instance_information(
+              Filters=[
+                {
+                  'Key': 'tag:'+key,
+                  'Values': [value]
+                }
+              ],
+              MaxResults=50)
+
+            instances = []
+            for inst in iil['InstanceInformationList']:
+              instances.append(inst['InstanceId'])
+
+            print(instances)
+            return None
 
       Description: "Executes 'ls -al' on instances tagged with key/value"
       Runtime: "python3.7"
